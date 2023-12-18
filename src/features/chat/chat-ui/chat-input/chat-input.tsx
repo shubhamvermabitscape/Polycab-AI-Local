@@ -6,7 +6,9 @@ import { Loader, Send } from "lucide-react";
 import { FC, FormEvent, useRef } from "react";
 import { ChatFileSlider } from "../chat-file/chat-file-slider";
 import { Microphone } from "../chat-speech/microphone";
+import { userSession } from "@/features/auth/helpers";
 import { useChatInputDynamicHeight } from "./use-chat-input-dynamic-height";
+import { useSession } from "next-auth/react";
 
 interface Props {}
 
@@ -20,13 +22,14 @@ const ChatInput: FC<Props> = (props) => {
   const { rows, resetRows, onKeyDown, onKeyUp } = useChatInputDynamicHeight({
     buttonRef,
   });
-
+  const { data: session } = useSession();
   const fileCHatVisible =
     chatBody.chatType === "data" && chatBody.chatOverFileName;
-
+  const admin=session?.user.email===process.env.ADMIN_EMAIL_ADDRESS
+  console.log(process.env.ADMIN_EMAIL_ADDRESS)
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleSubmit(e);
+    handleSubmit(e); 
     resetRows();
     setInput("");
   };
@@ -34,14 +37,14 @@ const ChatInput: FC<Props> = (props) => {
   const onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
   };
-
+  console.log(admin)
   return (
     <form
       onSubmit={submit}
       className="absolute bottom-0 w-full flex items-center"
     >
       <div className="container mx-auto max-w-4xl relative py-2 flex gap-2 items-center">
-        {fileCHatVisible && <ChatFileSlider />}
+        {fileCHatVisible && admin && <ChatFileSlider />}
         <Textarea
           rows={rows}
           value={input}
